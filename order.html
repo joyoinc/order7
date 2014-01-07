@@ -1,0 +1,81 @@
+
+<link rel="stylesheet" href="fancy-table-1.css" type="text/css" >
+<script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="./jquery.cookie.js"></script>
+
+<div> 
+  <a href='cart.html'>Cart Summary</a>
+</div>
+
+<table id=menu1 class=CSSTableGenerator >
+  <tr>
+  <td> ID </td>
+  <td> Name </td>
+  <td> Price </td>
+  <td> Comment </td>
+  <td> </td>
+  </tr>
+
+  <!--tr id=ex0>
+  <td> ex0 </td>
+  <td> gui example </td>
+  <td> 2.5 </td>
+  <td> this is an example to display gui </td>
+  <td> <button type='button' class='btnAddCart'>Add to Cart</button> </td>
+  </tr-->
+
+</table>
+
+<script>
+function renderMenu(menus) {
+  menus.forEach(function(m){
+    var str = "<tr id=AUGn1> <td> AUGn1 </td> <td> AUGn2 </td> <td> AUGn3 </td> <td> AUGn4 </td> <td> <button type='button' class='btnAddCart'>Add to Cart</button> </td> </tr>"
+    str = str.replace(/AUGn1/g, m.id).replace(/AUGn2/g, m.name).replace(/AUGn3/g, m.price).replace(/AUGn4/g, m.comm)
+    $('#menu1').append(str)
+  })
+}
+
+function addToCart(id) {
+  if(cart.hasOwnProperty(id))
+    cart[id] += 1
+  else
+    cart[id] = 1
+  cartStr = JSON.stringify(cart)
+  console.log(cartStr)
+  $.cookie('cartStr', cartStr)
+}
+
+if(window.location.href.indexOf('mode=so')>0) {
+  // start over, clear cart cookie
+  $.removeCookie('cartStr')
+}
+
+var cart = {}
+var cartStr = $.cookie('cartStr')
+if(cartStr) cart = $.parseJSON(cartStr)
+
+$.ajax({
+  type:'get',
+  url:'menu.json',
+  async: false,
+  success: function(data){
+    renderMenu(data)
+  },
+  error: function(err) {
+    console.log(err)
+  }
+})
+
+$('#menu1 tr .btnAddCart').on('click', function(){
+  var id = $(this).parents('tr').children(':first').text().replace(/ /g, "")
+  //console.log(id)
+  addToCart(id)
+  if($(this).next().length===0) {
+    $(this).after('<span>+1</span>')
+  } else {
+    var n = $(this).next().text().substr(1); n++;
+    $(this).next().text('+'+n)
+  }
+})
+
+</script>

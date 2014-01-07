@@ -1,0 +1,84 @@
+
+<link rel="stylesheet" href="fancy-table-2.css" type="text/css" >
+<script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="./jquery.cookie.js"></script>
+
+<div> 
+  <a href='order.html'>Continue Shopping</a>
+  <a href='order.html?mode=so'>Start Over</a>
+</div>
+
+<table class=CSSTableGenerator >
+  <tr>
+  <td> ID </td>
+  <td> Name </td>
+  <td> Price </td>
+  <td> Number </td>
+  <td> Total </td>
+  </tr>
+
+  <tr>
+  <td colspan=4>Sum</td>
+  <td id=totalPrice></td>
+  </tr>
+</table>
+<form action="http://localhost:1337/charge" method="POST">
+  <script
+    src="https://checkout.stripe.com/v2/checkout.js" class="stripe-button"
+    data-key="pk_test_JruMrg6H5HS5ksyvJYlpV2qi"
+    data-name="Demo Site"
+    data-description="2 widgets "
+  >
+  </script>
+  <input type=hidden name=amount id=amount value=23 />
+  <input type=hidden name=backUrl value='order.html?mode=so' />
+</form>
+
+<script>
+function buildPriceMap(menus) {
+  menus.forEach(function(m){
+    priceMap[m.id] = { name:m.name, price: m.price }
+  })
+}
+
+function renderCart() {
+  var total = 0
+  for(prop in cart) {
+    if(cart.hasOwnProperty(prop)) {
+      var price = priceMap[prop].price
+      var num = cart[prop]
+      var subtotal = price * num
+      total += subtotal
+      var str = "<tr> <td> AUGn1 </td> <td> AUGn2 </td> <td> AUGn3 </td> <td> AUGn4 </td> <td> AUGn5 </td> </tr>"
+      str = str.replace(/AUGn1/g, prop)
+      str = str.replace(/AUGn2/g, priceMap[prop].name)
+      str = str.replace(/AUGn3/g, price)
+      str = str.replace(/AUGn4/g, num)
+      str = str.replace(/AUGn5/g, subtotal)
+      //console.log(str)
+      $('table').append(str)
+    }
+  }
+  $('#totalPrice').text(total)
+  $('#amount').attr('value',total)
+}
+
+var cart = [];
+var priceMap = {};
+var cartStr = $.cookie('cartStr');
+if(cartStr) cart = $.parseJSON(cartStr);
+
+$.ajax({
+  type:'get',
+  url:'menu.json',
+  async: false,
+  success: function(data){
+    buildPriceMap(data)
+    renderCart()
+  },
+  error: function(err) {
+    console.log(err)
+  }
+})
+
+</script>
